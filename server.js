@@ -24,29 +24,30 @@ app.get('/channels', (req, res) => {
 // POST broadcast for a specific channel
 app.post('/broadcast/:channelId', (req, res) => {
     const id = req.params.channelId.toLowerCase()
-    const data = req.body;
+    const data = req.body
 
-    // Initialize channel if it doesn't exist
     if (!channels[id]) {
         channels[id] = {
-            camera: [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+            camera: [0,0,0,1,0,0,0,1,0,0,0,1],
             players: [],
-            scene: null,
-            isLive: false
-        };
+            scene: [],
+            isLive: false,
+            lastSeen: Date.now()
+        }
     }
 
-    channels[id].camera = data.camera;
-    channels[id].players = data.players;
-    channels[id].isLive = true;
+    channels[id].camera = data.camera
+    channels[id].players = data.players
+    channels[id].lastSeen = Date.now()
+    channels[id].isLive = true
 
-    if (data.scene) {
-        channels[id].scene = data.scene;
-        console.log(`IBS: Full Scene Updated for channel [${id}]`);
+    // only overwrite scene on full scans, never null it out
+    if (data.scene && data.scene.length > 0) {
+        channels[id].scene = data.scene
     }
 
-    res.send({ status: "Success", channel: id });
-});
+    res.send({ status: "Success", channel: id })
+})
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`IBS Satellite multiplexer active on port ${PORT}`));
